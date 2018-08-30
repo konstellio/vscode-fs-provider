@@ -16,7 +16,7 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
 	private _drivers: Map<string, Promise<FileSystem>>;
 	private _showInputBoxTail: Promise<string | undefined>;
 
-	constructor() {
+	constructor(protected outputChannel: vscode.OutputChannel) {
 		this._onDidChangeFile = new vscode.EventEmitter<vscode.FileChangeEvent[]>();
 
 		this._drivers = new Map();
@@ -79,8 +79,8 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
 							secureOptions: {
 								rejectUnauthorized: query.rejectUnauthorized as string === 'true'
 							},
-							debug(msg) {
-								console.info(msg);
+							debug: (msg) => {
+								this.outputChannel.appendLine(msg);
 							}
 						}));
 					case 'sftp':
@@ -94,6 +94,9 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
 								readyTimeout: parseInt(query.timeout as string || '10000'),
 								sudo: ['1', 'true'].indexOf(query.sudo as string) > -1 ? true : query.sudo as string,
 								passphrase: passphrase,
+								debug: (msg) => {
+									this.outputChannel.appendLine(msg);
+								}
 							}));
 						} else {
 							return resolve(new FileSystemSFTP({
@@ -104,6 +107,9 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
 								privateKey: query.privateKey ? readFileSync(query.privateKey as string) : undefined,
 								readyTimeout: parseInt(query.timeout as string || '10000'),
 								passphrase: passphrase,
+								debug: (msg) => {
+									this.outputChannel.appendLine(msg);
+								}
 							}));
 						}
 					default:

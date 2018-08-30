@@ -8,7 +8,7 @@
 			"type": "extensionHost",
 			"request": "launch",
 			"name": "Launch vscode-fs-provider",
-			"preLaunchTask": "watch-konstellio-vscode-fs-provider",
+			"preLaunchTask": "watch-tsc",
 			"runtimeExecutable": "${execPath}",
 			"args": [
 				"--extensionDevelopmentPath=${workspaceFolder}"

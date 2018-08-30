@@ -1,11 +1,30 @@
 {
-	"extends": "../../../tsconfig.json",
 	"compilerOptions": {
-		"rootDir": "./src",
+		"target": "es6",
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"declaration": true,
+		"sourceMap": true,
+		"strict": true,
+		"strictNullChecks": true,
+		// "noUnusedLocals": true,
+		// "noUnusedParameters": true,
+		// "noImplicitReturns": true,
+		// "noImplicitAny": true,
+		"noFallthroughCasesInSwitch": true,
+		"lib": [
+			"dom",
+			"es2017",
+			"es2018",
+			"esnext"
+		],
 		"outDir": "./dist"
 	},
+	"include": [
+		"src/**/*.ts"
+	],
 	"exclude": [
 		"node_modules",
-		"./dist"
+		"dist"
 	]
 }

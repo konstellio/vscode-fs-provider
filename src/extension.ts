@@ -7,7 +7,9 @@ import { FileSystemProvider } from './FileSystemProvider';
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-	const provider = new FileSystemProvider();
+	const output = vscode.window.createOutputChannel('FS provider');
+	
+	const provider = new FileSystemProvider(output);
 	context.subscriptions.push(vscode.workspace.registerFileSystemProvider('ftp', provider, { isCaseSensitive: true }));
 	context.subscriptions.push(vscode.workspace.registerFileSystemProvider('ftps', provider, { isCaseSensitive: true }));
 	context.subscriptions.push(vscode.workspace.registerFileSystemProvider('sftp', provider, { isCaseSensitive: true }));
