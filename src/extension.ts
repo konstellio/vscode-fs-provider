@@ -3,6 +3,8 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { FileSystemProvider } from './FileSystemProvider';
+import { copy } from '@konstellio/fs';
+import { FileSystemLocal } from '@konstellio/fs-local';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -14,17 +16,32 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.workspace.registerFileSystemProvider('ftps', provider, { isCaseSensitive: true }));
 	context.subscriptions.push(vscode.workspace.registerFileSystemProvider('sftp', provider, { isCaseSensitive: true }));
 
-	// context.subscriptions.push(vscode.commands.registerCommand('konstelliofs.downloadSelected', async (uri: vscode.Uri, selections: vscode.Uri[]) => {
-	// 	const destinations = await vscode.window.showOpenDialog({
-	// 		canSelectFiles: false,
-	// 		canSelectFolders: true,
-	// 		canSelectMany: false,
-	// 		openLabel: 'Download here'
-	// 	});
-	// 	if (destinations) {
-	// 		console.log('Download', selections.map(s => s.toString(true)), destinations[0].fsPath);
-	// 	}
-	// }));
+	context.subscriptions.push(vscode.commands.registerCommand('konstelliofs.downloadSelected', async (destination: vscode.Uri, selections: vscode.Uri[]) => {
+		const destinations = await vscode.window.showOpenDialog({
+			canSelectFiles: false,
+			canSelectFolders: true,
+			canSelectMany: false,
+			openLabel: 'Download here'
+		});
+		if (destinations) {
+			selections.forEach(async (source) => {
+				const fs = await provider.getDriver(source);
+				const local = new FileSystemLocal(destinations[0].fsPath);
+
+				await new Promise((resolve, reject) => {
+					const stream = copy(fs, source.path, local, '.');
+					stream.on('error', err => {
+						reject(err);
+					});
+					stream.on('end', resolve);
+					stream.on('data', entry => {
+						console.log(`${entry[0]} => ${entry[1]} (${(entry[3] / entry[4] * 100).toFixed(2)})`);
+					});
+				});
+			});
+			// console.log('Download', selections.map(s => s.toString(true)), destinations[0].fsPath);
+		}
+	}));
 
 	// context.subscriptions.push(vscode.commands.registerCommand('konstelliofs.uploadFilesHere', async (uri: vscode.Uri, selections: vscode.Uri[]) => {
 	// 	const sources = await vscode.window.showOpenDialog({
