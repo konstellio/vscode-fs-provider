@@ -29,7 +29,8 @@ export function activate(context: vscode.ExtensionContext) {
 				const local = new FileSystemLocal(destinations[0].fsPath);
 
 				await new Promise((resolve, reject) => {
-					const stream = copy(fs, source.path, local, '.');
+					debugger; // destination for file should be filename
+					const stream = copy(fs, source.path, local, '');
 					stream.on('error', err => {
 						reject(err);
 					});

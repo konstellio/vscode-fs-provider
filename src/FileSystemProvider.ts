@@ -206,7 +206,7 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
 				const chunks: Buffer[] = [];
 				readStream.on('error', (err: Error) => reject(err));
 				readStream.on('data', (chunk: Buffer) => chunks.push(chunk));
-				readStream.on('close', () => resolve(Buffer.concat(chunks)));
+				readStream.on('end', () => resolve(Buffer.concat(chunks)));
 			});
 			return data;
 		}
