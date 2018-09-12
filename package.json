@@ -33,6 +33,10 @@
             {
                 "command": "konstelliofs.uploadFoldersHere",
                 "title": "Upload folders here"
+            },
+            {
+                "command": "konstelliofs.startTask",
+                "title": "Task..."
             }
         ],
         "menus": {
@@ -69,14 +73,14 @@
         "vscode": "^1.1.21"
     },
     "dependencies": {
-        "@konstellio/disposable": "^0.2.2",
-        "@konstellio/eventemitter": "^0.2.2",
-        "@konstellio/fs": "^0.2.2",
-        "@konstellio/fs-local": "^0.2.2",
-        "@konstellio/fs-ftp": "^0.2.2",
-        "@konstellio/fs-sftp": "^0.2.2",
-        "@konstellio/fs-ssh": "^0.2.2",
-        "@konstellio/promised": "^0.2.2",
+        "@konstellio/disposable": "^0.2.3",
+        "@konstellio/eventemitter": "^0.2.3",
+        "@konstellio/fs": "^0.2.4",
+        "@konstellio/fs-local": "^0.2.4",
+        "@konstellio/fs-ftp": "^0.2.4",
+        "@konstellio/fs-sftp": "^0.2.4",
+        "@konstellio/fs-ssh": "^0.2.4",
+        "@konstellio/promised": "^0.2.3",
         "ftp": "^0.3.10",
         "ssh2": "^0.6.1"
     }
