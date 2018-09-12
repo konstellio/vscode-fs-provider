@@ -33,7 +33,6 @@ export function activate(context: vscode.ExtensionContext) {
 				}, async (progress, token) => {
 					const remoteFs = await provider.getDriver(selection);
 					const src = selection.path;
-					const stat = await remoteFs.stat(src);
 					const dest = basename(src);
 					const localFs = new FileSystemLocal(destinations[0].fsPath);
 
@@ -45,7 +44,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 					let percentDone = 0;
 					let lastPercent = 0;
-					let progressMessage = `Gathering list of files and directories for download...`;
+					let progressMessage = `Calculating download size...`;
 
 					const progressTimer = setInterval(() => {
 						const increment = percentDone - lastPercent;
@@ -59,11 +58,6 @@ export function activate(context: vscode.ExtensionContext) {
 						stream.on('data', entry => {
 							percentDone = entry[3] / entry[4] * 100;
 							progressMessage = `${entry[1]}`;
-							// progress.report({
-							// 	increment,
-							// 	message: `${entry[0]} => ${entry[1]}`
-							// });
-							console.log(`${entry[0]} => ${entry[1]}`);
 						});
 					}).then(() => {
 						clearInterval(progressTimer);
@@ -133,45 +127,6 @@ export function activate(context: vscode.ExtensionContext) {
 	// 	const terminal = vscode.window.createTerminal(`Ext Terminal #${NEXT_TERM_ID++}`);
 	// 	terminal.sendText("echo 'Sent text immediately after creating'");
 	// }));
-
-	context.subscriptions.push(vscode.commands.registerCommand('konstelliofs.startTask', () => {
-		vscode.window.withProgress({
-			location: vscode.ProgressLocation.Notification,
-			title: "I am long running!",
-			cancellable: true
-		}, async (progress, token) => {
-			token.onCancellationRequested(() => {
-				console.log("User canceled the long running operation")
-			});
-
-			progress.report({ increment: 0 });
-
-			// setTimeout(() => {
-			// 	progress.report({ increment: 10, message: "I am long running! - still going..." });
-			// }, 1000);
-
-			// setTimeout(() => {
-			// 	progress.report({ increment: 0, message: "I am long running! - still going even more..." });
-			// }, 2000);
-
-			// setTimeout(() => {
-			// 	progress.report({ increment: 50, message: "I am long running! - almost there..." });
-			// }, 3000);
-
-			let pt = 0.1;
-			setInterval(() => {
-				progress.report({ increment: pt, message: `I am long running! - almost there... ${pt}` });
-			}, 100)
-
-			var p = new Promise(resolve => {
-				setTimeout(() => {
-					resolve();
-				}, 5000);
-			});
-
-			return p;
-		});
-	}));
 }
 
 // this method is called when your extension is deactivated
