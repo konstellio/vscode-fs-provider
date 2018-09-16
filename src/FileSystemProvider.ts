@@ -1,7 +1,7 @@
 'use strict';
 
 import * as vscode from 'vscode';
-import { FileSystem, Stats, FileNotFound, FileAlreadyExists, CouldNotConnect } from '@konstellio/fs';
+import { FileSystem, Stats, FileNotFound, FileAlreadyExists, CouldNotConnect, FileSystemCache, FileSystemPool } from '@konstellio/fs';
 import { FileSystemFTP } from '@konstellio/fs-ftp';
 import { FileSystemSFTP } from '@konstellio/fs-sftp';
 import { FileSystemSSH } from '@konstellio/fs-ssh';
@@ -64,10 +64,12 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
 					}
 				}
 
+				let fs: FileSystem | undefined;
+
 				switch (uri.scheme) {
 					case 'ftp':
 					case 'ftps':
-						return resolve(new FileSystemFTP({
+						fs = new FileSystemFTP({
 							host: url.hostname,
 							port: parseInt(url.port || '21'),
 							user: user,
@@ -82,10 +84,11 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
 							debug: (msg) => {
 								this.outputChannel.appendLine(msg);
 							}
-						}));
+						});
+						break;
 					case 'sftp':
 						if (query.sudo) {
-							return resolve(new FileSystemSSH({
+							fs = new FileSystemSSH({
 								host: url.hostname!,
 								port: parseInt(url.port || '22'),
 								username: user,
@@ -97,9 +100,9 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
 								debug: (msg) => {
 									this.outputChannel.appendLine(msg);
 								}
-							}));
+							});
 						} else {
-							return resolve(new FileSystemSFTP({
+							fs = new FileSystemSFTP({
 								host: url.hostname,
 								port: parseInt(url.port || '22'),
 								username: user,
@@ -110,10 +113,33 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
 								debug: (msg) => {
 									this.outputChannel.appendLine(msg);
 								}
-							}));
+							});
 						}
+						break;
 					default:
 						return reject(vscode.FileSystemError.Unavailable(uri));
+				}
+
+				if (fs) {
+					if (query.concurrentConnection) {
+						const nbConcurrentConnection = parseInt(query.concurrentConnection as string);
+						if (nbConcurrentConnection > 1) {
+							const fss = [fs];
+							for (let i = 1; i < nbConcurrentConnection; ++i) {
+								fss.push(fs.clone());
+							}
+							fs = new FileSystemPool(fss);
+						}
+					}
+
+					if (query.cache) {
+						const ttl = parseInt(query.cache as string);
+						if (ttl) {
+							fs = new FileSystemCache(fs, ttl);
+						}
+					}
+
+					resolve(fs);
 				}
 			}));
 		}
