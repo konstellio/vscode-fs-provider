@@ -36,7 +36,13 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
 					this._drivers.delete(hash);
 					return _reject(reason);
 				};
-				const uriString = `${uri.scheme}://${uri.authority}${uri.path}${uri.query ? '?' + uri.query : ''}${uri.fragment ? '#' + uri.fragment : ''}`;
+				let authParts = uri.authority.split(':');
+				const uriUser = encodeURIComponent(authParts.shift()!);
+				authParts = authParts.join(':').split('@');
+				const uriHost = authParts.pop();
+				const uriPass = encodeURIComponent(authParts.join('@'));
+
+				const uriString = `${uri.scheme}://${uriUser}${uriPass ? `:${uriPass}` : ''}${uriUser && '@'}${uriHost}${uri.query ? '?' + uri.query : ''}${uri.fragment ? '#' + uri.fragment : ''}`;
 				const url = parseUrl(uriString);
 				const query = parseQuery(url.query || '');
 				const auth = (url.auth || '').split(':');
