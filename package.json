@@ -3,7 +3,7 @@
     "name": "vscode-fs-provider",
     "displayName": "Konstellio FS Provider",
     "description": "",
-    "version": "0.0.7",
+    "version": "0.0.8",
     "publisher": "konstellio",
     "engines": {
         "vscode": "^1.28.0"
