@@ -69,14 +69,14 @@
         "vscode": "^1.1.21"
     },
     "dependencies": {
-        "@konstellio/disposable": "^0.2.3",
-        "@konstellio/eventemitter": "^0.2.3",
-        "@konstellio/fs": "^0.2.8",
-        "@konstellio/fs-local": "^0.2.8",
-        "@konstellio/fs-ftp": "^0.2.8",
-        "@konstellio/fs-sftp": "^0.2.8",
-        "@konstellio/fs-ssh": "^0.2.8",
-        "@konstellio/promised": "^0.2.3",
+        "@konstellio/disposable": "^0.2.9",
+        "@konstellio/eventemitter": "^0.2.9",
+        "@konstellio/fs": "^0.2.9",
+        "@konstellio/fs-local": "^0.2.9",
+        "@konstellio/fs-ftp": "^0.2.9",
+        "@konstellio/fs-sftp": "^0.2.9",
+        "@konstellio/fs-ssh": "^0.2.9",
+        "@konstellio/promised": "^0.2.9",
         "ftp": "^0.3.10",
         "ssh2": "^0.6.1"
     }

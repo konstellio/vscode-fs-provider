@@ -90,7 +90,8 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
 							debug: (msg) => {
 								this.outputChannel.appendLine(msg);
 							}
-						});
+						}, parseInt(query.cache as string || '10000'));
+						query.cache = undefined;
 						break;
 					case 'sftp':
 						if (query.sudo) {
@@ -167,6 +168,7 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
 	}
 
 	async stat(uri: vscode.Uri): Promise<vscode.FileStat> {
+		console.log(`stat ${uri.toString()}`);
 		try {
 			const driver = await this.getDriver(uri);
 			const stats = await driver.stat(uri.path);
@@ -179,6 +181,7 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
 	}
 
 	async readDirectory(uri: vscode.Uri): Promise<[string, vscode.FileType][]> {
+		console.log(`readDirectory ${uri.toString()}`);
 		try {
 			const driver = await this.getDriver(uri);
 			const exists = await driver.exists(uri.path);
@@ -205,6 +208,7 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
 	}
 
 	async createDirectory(uri: vscode.Uri): Promise<void> {
+		console.log(`createDirectory ${uri.toString()}`);
 		try {
 			const driver = await this.getDriver(uri);
 			const exists = await driver.exists(uri.path);
@@ -221,6 +225,7 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
 	}
 
 	async readFile(uri: vscode.Uri): Promise<Uint8Array> {
+		console.log(`readFile ${uri.toString()}`);
 		try {
 			const driver = await this.getDriver(uri);
 			const exists = await driver.exists(uri.path);
@@ -249,6 +254,7 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
 	}
 
 	async writeFile(uri: vscode.Uri, content: Uint8Array, options: { create: boolean, overwrite: boolean }): Promise<void> {
+		console.log(`writeFile ${uri.toString()}`);
 		try {
 			const driver = await this.getDriver(uri);
 			const exists = await driver.exists(uri.path);
@@ -264,15 +270,13 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
 				}
 			}
 
-			const writeStream = await driver.createWriteStream(uri.path, options.overwrite);
-
-			await new Promise<void>((resolve) => {
-				writeStream.end(content, () => {
-					// if (err) {
-					// 	return reject(err);
-					// }
-					return resolve();
-				});
+			
+			await new Promise<void>(async (resolve, reject) => {
+				const writeStream = await driver.createWriteStream(uri.path, options.overwrite);
+				writeStream.on('close', resolve);
+				writeStream.on('error', reject);
+				writeStream.write(content);
+				writeStream.end();
 			});
 		}
 		catch (err) {
@@ -282,7 +286,7 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
 	}
 
 	async delete(uri: vscode.Uri, options: { recursive: boolean }): Promise<void> {
-		
+		console.log(`delete ${uri.toString()}`);
 		try {
 			const driver = await this.getDriver(uri);
 			const exists = await driver.exists(uri.path);
@@ -299,6 +303,7 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
 	}
 
 	async rename(oldUri: vscode.Uri, newUri: vscode.Uri, options: { overwrite: boolean }): Promise<void> {
+		console.log(`rename ${oldUri.toString()} to ${newUri.toString()}`);
 		try {
 			const driver = await this.getDriver(oldUri);
 			const exists = await driver.exists(newUri.path);
@@ -325,6 +330,7 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
 	}
 
 	async copy(source: vscode.Uri, destination: vscode.Uri, options: { overwrite: boolean }): Promise<void> {
+		console.log(`copy ${source.toString()} to ${destination.toString()}`);
 		try {
 			const driver = await this.getDriver(source);
 			const exists = await driver.exists(destination.path);
